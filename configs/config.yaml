@@ -1,0 +1,24 @@
+dataset:
+  name: 'Embrapa'
+  image_size: [ 224,224 ]
+  data_dir: "../data/raw"
+  label_encoder: "../data/label_encoder.pkl"
+
+training:
+  batch_size: 16
+  epochs: 50
+  learning_rate: 0.0001
+  optimizer: "adam"
+  loss: "categorical_crossentropy"
+
+model:
+  patch_size: 5
+  transformer_blocks: 4
+  embedding_dim: 16
+  dropout_rate: 0.1
+
+output:
+  save_dir: "../outputs"
+  model_path: "../outputs/models/plantxvit_best.h5"
+  log_dir: "../output/logs"
+  explain_dir: "../outputs/explain"
