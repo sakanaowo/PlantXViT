@@ -1,8 +1,12 @@
 dataset:
-  name: 'Embrapa'
-  image_size: [ 224,224 ]
-  data_dir: "../data/raw"
-  label_encoder: "../data/label_encoder.pkl"
+  embrapa:
+    image_size: [ 224,224 ]
+    data_dir: "../data/raw/embrapa"
+    label_encoder: "../data/processed/embrapa_label_encoder.pkl"
+  apple:
+    image_size: [ 224,224 ]
+    data_dir: "../data/raw"
+    label_encoder: "../data/processed/apple_label_encoder.pkl"
 
 training:
   batch_size: 16
