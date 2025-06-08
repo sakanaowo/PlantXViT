@@ -1,12 +1,14 @@
 dataset:
   embrapa:
-    image_size: [ 224,224 ]
-    data_dir: "../data/raw/embrapa"
-    label_encoder: "../data/processed/embrapa_label_encoder.pkl"
+    image_size: [224, 224]
+    data_dir: "./data/raw/embrapa"
+    label_encoder: "./data/processed/embrapa_label_encoder.pkl"
+
   apple:
-    image_size: [ 224,224 ]
-    data_dir: "../data/raw"
-    label_encoder: "../data/processed/apple_label_encoder.pkl"
+    image_size: [224, 224]
+    data_dir: "./data/raw/plant-pathology-2020-fgvc7/images"
+    csv_path: "./data/raw/plant-pathology-2020-fgvc7/train.csv"
+    label_encoder: "./data/processed/apple_label_encoder.pkl"
 
 training:
   batch_size: 16
@@ -22,7 +24,7 @@ model:
   dropout_rate: 0.1
 
 output:
-  save_dir: "../outputs"
-  model_path: "../outputs/models/plantxvit_best.h5"
-  log_dir: "../output/logs"
-  explain_dir: "../outputs/explain"
+  save_dir: "./outputs"
+  model_path: "./outputs/models/plantxvit_best.h5"
+  log_dir: "./outputs/logs"
+  explain_dir: "./outputs/explain"
