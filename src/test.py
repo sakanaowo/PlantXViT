@@ -1,9 +1,16 @@
-import os
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = PlantXViT(num_classes=4).to(device)
 
-from utils.config_loader import load_config
+criterion = torch.nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
-config = load_config()
-data_dir = config['dataset']['data_dir']
-path = os.path.join(data_dir, 'train')
-class_names = sorted(os.listdir(path))
-print(class_names)
+history = train_model(
+    model,
+    train_loader=train_loader,
+    val_loader=val_loader,
+    criterion=criterion,
+    optimizer=optimizer,
+    num_epochs=50,
+    device=device,
+    save_path=config["output"]["model_path"]
+)

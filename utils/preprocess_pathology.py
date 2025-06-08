@@ -19,9 +19,9 @@ label_encoder_path = apple_config['label_encoder']
 image_size = tuple(apple_config['image_size'])
 
 # read csv, preprocess label
-
 df = pd.read_csv(csv_path)
-df['label'] = df[['healthy', 'scab', 'rust', 'complex']].idxmax(axis=1)
+df['label'] = df[['healthy', 'multiple_diseases', 'rust', 'scab']].idxmax(axis=1)
+
 
 # encode label
 label_encoder = LabelEncoder()

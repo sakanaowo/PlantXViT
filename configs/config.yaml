@@ -25,6 +25,6 @@ model:
 
 output:
   save_dir: "./outputs"
-  model_path: "./outputs/models/plantxvit_best.h5"
+  model_path: "./outputs/models/plantxvit_best.pth"
   log_dir: "./outputs/logs"
   explain_dir: "./outputs/explain"
