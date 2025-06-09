@@ -3,42 +3,58 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import pickle
 
-
-def preprocess_embrapa(split_dir):
-    image_ids = []
+def process_split_with_check(split_dir, verbose=True):
+    image_paths = []
     labels = []
+
     for label_name in sorted(os.listdir(split_dir)):
         label_path = os.path.join(split_dir, label_name)
-        if os.path.isdir(label_path):
+        if not os.path.isdir(label_path):
             continue
-        for fname in os.listdir(label_path):
-            if fname.lower().endswith((".png", ".jpg", ".jpeg")):
-                image_ids.append(os.path.join(label_path, fname))
-                labels.append(label_name.lower())
 
-    return pd.DataFrame({'image_path': image_ids, 'label': labels})
+        valid_files = [
+            fname for fname in os.listdir(label_path)
+            if fname.lower().endswith(('.jpg', '.jpeg', '.png'))
+        ]
 
+        # Bỏ qua class rỗng
+        if len(valid_files) == 0:
+            if verbose:
+                print(f"⚠️ Bỏ qua class trống: {label_name}")
+            continue
 
-data_root = config['dataset']['embrapa']['data_dir']
+        for fname in valid_files:
+            full_path = os.path.join(label_path, fname)
+            if os.path.exists(full_path):
+                image_paths.append(os.path.join(label_name, fname))
+                labels.append(label_name)
+            elif verbose:
+                print(f"⚠️ Ảnh không tồn tại: {full_path}")
 
-# dataframe for each split
-df_train = preprocess_embrapa(os.path.join(data_root, 'train'))
-df_val = preprocess_embrapa(os.path.join(data_root, 'val'))
-df_test = preprocess_embrapa(os.path.join(data_root, 'test'))
+    return pd.DataFrame({'image_path': image_paths, 'label': labels})
+# Đường dẫn
+base_dir = "./data/raw/embrapa"
 
-# encode label
+# Tạo dataframe cho từng tập
+train_df = process_split_with_check(os.path.join(base_dir, "train"))
+val_df = process_split_with_check(os.path.join(base_dir, "val"))
+test_df = process_split_with_check(os.path.join(base_dir, "test"))
 
+# Encode nhãn
 label_encoder = LabelEncoder()
-df_train['label_idx'] = label_encoder.fit_transform(df_train['label'])
-df_val['label_idx'] = label_encoder.transform(df_val['label'])
-df_test['label_idx'] = label_encoder.transform(df_test['label'])
+train_df['label_idx'] = label_encoder.fit_transform(train_df['label'])
+val_df['label_idx'] = label_encoder.transform(val_df['label'])
+test_df['label_idx'] = label_encoder.transform(test_df['label'])
 
-# save encoder
-os.makedirs('./data/processed/embrapa', exist_ok=True)
-with open('./data/processed/embrapa/train.pkl', 'wb') as f:
-    pickle.dump(df_train, f)
+# Lưu lại
+output_dir = "./data/processed/embrapa"
+os.makedirs(output_dir, exist_ok=True)
+train_df.to_csv(os.path.join(output_dir, "train.csv"), index=False)
+val_df.to_csv(os.path.join(output_dir, "val.csv"), index=False)
+test_df.to_csv(os.path.join(output_dir, "test.csv"), index=False)
 
-# save csv
-df_train.to_csv('./data/processed/embrapa/train.csv', index=False)
-df_val.to_csv('./data/processed/embrapa/val.csv', index=False)
-df_test.to_csv('./data/processed/embrapa/test.csv', index=False)
+# Lưu label encoder
+with open(os.path.join(output_dir, "label_encoder.pkl"), "wb") as f:
+    pickle.dump(label_encoder, f)
+
+print("✅ Đã tạo lại đầy đủ train/val/test CSV với kiểm tra ảnh.")

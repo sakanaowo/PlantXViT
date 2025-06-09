@@ -30,7 +30,7 @@ def train_model(
         model, train_loader, val_loader,
         criterion, optimizer,
         num_epochs, device,
-        save_path="./outputs/models/plantxvit_best.pth"
+        save_path="./outputs/models/apple/plantxvit_best.pth"
 ):
     best_val_loss = float('inf')
     history = {"train_loss": [], "val_loss": [], "train_acc": [], "val_acc": []}
