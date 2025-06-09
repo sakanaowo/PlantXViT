@@ -71,7 +71,8 @@ class PlantXViT(nn.Module):
 
         # VGG16 (2 blocks)
         vgg = models.vgg16(weights=VGG16_Weights.DEFAULT)
-        self.vgg_block = nn.Sequential(*vgg[:10])  # output: (B, 128, 56, 56)
+        self.vgg_block = nn.Sequential(*list(vgg.features[:10]))
+        # self.vgg_block = nn.Sequential(*vgg[:10])  # output: (B, 128, 56, 56)
 
         # Inception-like block → (B, 384, 56, 56)
         self.inception = InceptionBlock(in_channels=128)
