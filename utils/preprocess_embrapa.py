@@ -1,64 +1,44 @@
 import os
-import numpy as np
-from keras.utils import to_categorical
+import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from keras.preprocessing.image import load_img, img_to_array
 import pickle
-from utils.config_loader import load_config
 
-# Load config
-config = load_config()
-img_size = tuple(config["dataset"]["image_size"])
-data_dir = config["dataset"]["data_dir"]
-save_dir = config["output"]["save_dir"]
-label_path = config["dataset"]["label_encoder"]
 
-os.makedirs(save_dir, exist_ok=True)
-
-def load_images_and_labels(split_dir):
-    images, labels = [], []
-    class_names = sorted(os.listdir(split_dir))
-
-    for class_name in class_names:
-        class_path = os.path.join(split_dir, class_name)
-        if not os.path.isdir(class_path):
+def preprocess_embrapa(split_dir):
+    image_ids = []
+    labels = []
+    for label_name in sorted(os.listdir(split_dir)):
+        label_path = os.path.join(split_dir, label_name)
+        if os.path.isdir(label_path):
             continue
-        for fname in os.listdir(class_path):
-            if fname.lower().endswith((".jpg", ".jpeg", ".png")):
-                img = load_img(os.path.join(class_path, fname), target_size=img_size)
-                img_array = img_to_array(img) / 255.0
-                images.append(img_array)
-                labels.append(class_name)
+        for fname in os.listdir(label_path):
+            if fname.lower().endswith((".png", ".jpg", ".jpeg")):
+                image_ids.append(os.path.join(label_path, fname))
+                labels.append(label_name.lower())
 
-    return np.array(images), np.array(labels)
+    return pd.DataFrame({'image_path': image_ids, 'label': labels})
 
-def process_split(split):
-    path = os.path.join(data_dir, split)
-    X, y = load_images_and_labels(path)
-    return X, y
 
-# Process all splits
-trainX, trainY = process_split("train")
-valX, valY = process_split("val")
-testX, testY = process_split("test")
+data_root = config['dataset']['embrapa']['data_dir']
 
-# Encode labels
-encoder = LabelEncoder()
-trainY_enc = encoder.fit_transform(trainY)
-valY_enc = encoder.transform(valY)
-testY_enc = encoder.transform(testY)
+# dataframe for each split
+df_train = preprocess_embrapa(os.path.join(data_root, 'train'))
+df_val = preprocess_embrapa(os.path.join(data_root, 'val'))
+df_test = preprocess_embrapa(os.path.join(data_root, 'test'))
 
-trainY_oh = to_categorical(trainY_enc)
-valY_oh = to_categorical(valY_enc)
-testY_oh = to_categorical(testY_enc)
+# encode label
 
-# Save processed data
-np.savez_compressed(os.path.join(save_dir, "train.npz"), X=trainX, y=trainY_oh)
-np.savez_compressed(os.path.join(save_dir, "val.npz"), X=valX, y=valY_oh)
-np.savez_compressed(os.path.join(save_dir, "test.npz"), X=testX, y=testY_oh)
+label_encoder = LabelEncoder()
+df_train['label_idx'] = label_encoder.fit_transform(df_train['label'])
+df_val['label_idx'] = label_encoder.transform(df_val['label'])
+df_test['label_idx'] = label_encoder.transform(df_test['label'])
 
-# Save encoder
-with open(label_path, "wb") as f:
-    pickle.dump(encoder, f)
+# save encoder
+os.makedirs('./data/processed/embrapa', exist_ok=True)
+with open('./data/processed/embrapa/train.pkl', 'wb') as f:
+    pickle.dump(df_train, f)
 
-print("✅ Dữ liệu đã được tiền xử lý và lưu vào:", save_dir)
+# save csv
+df_train.to_csv('./data/processed/embrapa/train.csv', index=False)
+df_val.to_csv('./data/processed/embrapa/val.csv', index=False)
+df_test.to_csv('./data/processed/embrapa/test.csv', index=False)

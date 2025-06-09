@@ -1,7 +1,7 @@
 # Giả sử log_text chứa toàn bộ đoạn log bạn dán bên trên (dạng string)
 from utils.helper import parse_log_file
 
-train_loss, train_acc, val_loss, val_acc = parse_log_file('../outputs/logs/train_attempt1.txt')
+train_loss, train_acc, val_loss, val_acc = parse_log_file('../outputs/apple/logs/train_attempt1.txt')
 
 # Vẽ biểu đồ
 import matplotlib.pyplot as plt
