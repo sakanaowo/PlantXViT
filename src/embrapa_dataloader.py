@@ -1,23 +1,19 @@
+import os.path
+
 from torchvision import transforms
 from torch.utils.data import DataLoader
 
-# Transform dùng chung cho cả 3 tập
-embrapa_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406],
-                         [0.229, 0.224, 0.225])
-])
+from utils.preprocess_embrapa import embrapa_transform
 
 # Root thư mục chứa ảnh
 image_root = "./data/raw/embrapa"
 
 # Tạo dataset
-train_dataset = EmbrapaDataset("./data/processed/embrapa_train.csv", image_root, transform=embrapa_transform)
-val_dataset = EmbrapaDataset("./data/processed/embrapa_val.csv", image_root, transform=embrapa_transform)
-test_dataset = EmbrapaDataset("./data/processed/embrapa_test.csv", image_root, transform=embrapa_transform)
+train_dataset = datasets.ImageFolder(os.path.join(image_root, 'train'), transform=embrapa_transform)
+val_dataset = datasets.ImageFolder(os.path.join(image_root, 'val'), transform=embrapa_transform)
+test_dataset = datasets.ImageFolder(os.path.join(image_root, 'test'), transform=embrapa_transform)
 
 # Tạo DataLoader
-train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
-val_loader = DataLoader(val_dataset, batch_size=16)
-test_loader = DataLoader(test_dataset, batch_size=16)
+train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4)
+val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False, num_workers=4)
+test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False, num_workers=4)
