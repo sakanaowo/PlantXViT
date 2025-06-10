@@ -45,7 +45,7 @@ class PatchEmbedding(nn.Module):
 
 # -------- Transformer Encoder Block (ViT block) --------
 class TransformerBlock(nn.Module):
-    def __init__(self, emb_size=16, dropout=0.1):
+    def __init__(self, emb_size=16, dropout=0.3):
         super().__init__()
         self.norm1 = nn.LayerNorm(emb_size)
         self.attn = nn.MultiheadAttention(emb_size, num_heads=2, batch_first=True)

@@ -62,6 +62,8 @@
 from torchvision import datasets, transforms
 
 embrapa_transform = transforms.Compose([
+    transforms.RandomHorizontalFlip(),
+    transforms.ColorJitter(0.2, 0.2, 0.2, 0.0),
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
