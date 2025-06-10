@@ -4,27 +4,27 @@ import torchvision.models as models
 from torchvision.models import VGG16_Weights
 
 
-# inception block
+# inception block (chỉnh sửa: tổng output channels = 512)
 class InceptionBlock(nn.Module):
     def __init__(self, in_channels):
         super().__init__()
-        self.branch1x1 = nn.Conv2d(in_channels, 128, kernel_size=1)
+        self.branch1x1 = nn.Conv2d(in_channels, 192, kernel_size=1)  # Tăng lên 192
 
         self.branch3x3 = nn.Sequential(
-            nn.Conv2d(in_channels, 128, kernel_size=(1, 3), padding=(0, 1)),
-            nn.Conv2d(128, 128, kernel_size=(3, 1), padding=(1, 0)),
+            nn.Conv2d(in_channels, 160, kernel_size=(1, 3), padding=(0, 1)),
+            nn.Conv2d(160, 160, kernel_size=(3, 1), padding=(1, 0)),
         )
 
         self.branch_pool = nn.Sequential(
             nn.MaxPool2d(kernel_size=3, stride=1, padding=1),
-            nn.Conv2d(in_channels, 128, kernel_size=1),
+            nn.Conv2d(in_channels, 160, kernel_size=1),  # Tăng lên 160
         )
 
     def forward(self, x):
         b1 = self.branch1x1(x)
         b2 = self.branch3x3(x)
         b3 = self.branch_pool(x)
-        return torch.cat([b1, b2, b3], dim=1)
+        return torch.cat([b1, b2, b3], dim=1)  # Output shape: (B, 512, H, W)
 
 
 # patch embedding: split patch -> Linear
@@ -78,7 +78,8 @@ class PlantXViT(nn.Module):
         self.inception = InceptionBlock(in_channels=128)
 
         # Patch Embedding → (B, 121, 16)
-        self.patch_embed = PatchEmbedding(in_channels=384, patch_size=patch_size, emb_size=emb_size)
+        # self.patch_embed = PatchEmbedding(in_channels=384, patch_size=patch_size, emb_size=emb_size)
+        self.patch_embed = PatchEmbedding(in_channels=512, patch_size=patch_size, emb_size=emb_size)
 
         # Transformer blocks
         self.transformer = nn.Sequential(*[TransformerBlock(emb_size, dropout) for _ in range(num_blocks)])
